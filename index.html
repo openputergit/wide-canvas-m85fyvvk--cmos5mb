@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architectural Blueprint Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        .blueprint {
+            background-color: #1a4b6e;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            border-radius: 10px;
+        }
+        #canvas {
+            background: #1a4b6e;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="container mx-auto p-6 bg-white shadow-lg rounded-lg max-w-5xl">
+        <h1 class="text-3xl font-bold text-center mb-6">Architectural Blueprint Generator</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="p-6 bg-gray-50 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4">House Specifications</h2>
+                <div class="space-y-4">
+                    <label class="block">House Type:
+                        <select id="houseType" class="w-full p-2 border rounded">
+                            <option value="single">Single Story</option>
+                            <option value="double">Double Story</option>
+                            <option value="apartment">Apartment</option>
+                        </select>
+                    </label>
+                    <label class="block">Number of Bedrooms:
+                        <input type="number" id="bedrooms" min="1" max="6" value="2" class="w-full p-2 border rounded">
+                    </label>
+                    <label class="block">Number of Bathrooms:
+                        <input type="number" id="bathrooms" min="1" max="4" value="1" class="w-full p-2 border rounded">
+                    </label>
+                    <label class="block">Kitchen Style:
+                        <select id="kitchenStyle" class="w-full p-2 border rounded">
+                            <option value="open">Open Plan</option>
+                            <option value="closed">Closed Kitchen</option>
+                            <option value="island">Kitchen Island</option>
+                        </select>
+                    </label>
+                    <div>
+                        <label class="block">Additional Features:</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center"><input type="checkbox" id="garage" class="mr-2"> Garage</label>
+                            <label class="flex items-center"><input type="checkbox" id="patio" class="mr-2"> Patio/Deck</label>
+                            <label class="flex items-center"><input type="checkbox" id="study" class="mr-2"> Study Room</label>
+                        </div>
+                    </div>
+                    <button onclick="generateBlueprint()" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition">Generate Blueprint</button>
+                </div>
+            </div>
+            <div class="p-6 bg-gray-50 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4">Blueprint Preview</h2>
+                <div class="blueprint p-4">
+                    <canvas id="canvas" width="600" height="400" class="w-full"></canvas>
+                </div>
+                <button onclick="downloadBlueprint()" class="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition">Download Blueprint</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        function drawRoom(x, y, width, height, label) {
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, width, height);
+            ctx.fillStyle = '#fff';
+            ctx.font = '14px Arial';
+            ctx.fillText(label, x + 10, y + 25);
+        }
+
+        function generateBlueprint() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const bedrooms = parseInt(document.getElementById('bedrooms').value);
+            const bathrooms = parseInt(document.getElementById('bathrooms').value);
+            const kitchenStyle = document.getElementById('kitchenStyle').value;
+            const hasGarage = document.getElementById('garage').checked;
+            const hasPatio = document.getElementById('patio').checked;
+            const hasStudy = document.getElementById('study').checked;
+            drawRoom(50, 50, 200, 150, 'Living Room');
+            drawRoom(250, 50, 150, 150, kitchenStyle === 'open' ? 'Kitchen' : 'Closed Kitchen');
+            let bedroomX = 50, bedroomY = 220;
+            for (let i = 0; i < bedrooms; i++) {
+                drawRoom(bedroomX, bedroomY, 120, 100, `Bedroom ${i + 1}`);
+                bedroomX += 140;
+                if (bedroomX > 400) { bedroomX = 50; bedroomY += 120; }
+            }
+            let bathroomX = 450, bathroomY = 50;
+            for (let i = 0; i < bathrooms; i++) {
+                drawRoom(bathroomX, bathroomY, 80, 80, `Bath ${i + 1}`);
+                bathroomY += 100;
+            }
+            if (hasGarage) drawRoom(50, 340, 150, 100, 'Garage');
+            if (hasPatio) drawRoom(220, 340, 120, 80, 'Patio');
+            if (hasStudy) drawRoom(360, 340, 100, 80, 'Study');
+        }
+
+        function downloadBlueprint() {
+            const link = document.createElement('a');
+            link.download = 'blueprint.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        generateBlueprint();
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
